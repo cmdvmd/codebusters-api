@@ -3,6 +3,7 @@ Credit to Codebuilder bot (https://github.com/AC01010/codebuilder) for quotes li
 """
 
 import random
+import string
 
 
 def calculate_frequency(text):
@@ -24,16 +25,40 @@ def encode_random():
         remaining.remove(replacement)
 
     # Encode quote
-    quote = random.choice(quote_list)
-    encoded = ''
-    for char in quote:
+    plaintext = random.choice(quote_list)
+    ciphertext = ''
+    for char in plaintext:
         if char in alphabet:
-            encoded += key[char]
+            ciphertext += key[char]
         else:
-            encoded += char
-    return encoded, quote
+            ciphertext += char
+    return ciphertext, plaintext
+
+
+def aristocrat():
+    ciphertext, plaintext = encode_random()
+    return {
+        'ciphertext': ciphertext,
+        'plaintext': plaintext,
+        'frequency': calculate_frequency(ciphertext)
+    }
+
+
+def patristocrat():
+    chunk_size = 5
+    spaced_ciphertext, plaintext = encode_random()
+    replace = str.maketrans('', '', string.punctuation + ' ')
+    raw_chars = spaced_ciphertext.translate(replace)
+    ciphertext = ' '.join([raw_chars[i: i + chunk_size] for i in range(0, len(raw_chars), chunk_size)])
+    return {
+        'ciphertext': ciphertext,
+        'plaintext': plaintext,
+        'frequency': calculate_frequency(ciphertext)
+    }
 
 
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 with open('quotes.txt', 'r', encoding='utf-8') as quotes_file:
     quote_list = [line.strip().upper() for line in quotes_file.readlines()]
+
+print(patristocrat())
