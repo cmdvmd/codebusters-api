@@ -1,5 +1,5 @@
 """
-Credit to Codebuilder bot (https://github.com/AC01010/codebuilder) for quotes list
+Credit to Codebuilder bot (https://github.com/AC01010/codebuilder) for quotes and word list
 """
 
 import random
@@ -8,35 +8,79 @@ import string
 
 def calculate_frequency(text):
     frequency = {}
-    for letter in alphabet:
-        frequency.update({letter: text.count(letter)})
+    for char in letters:
+        frequency.update({char: text.count(char)})
     return frequency
 
 
-def encode_random():
-    # Generate key
-    remaining = list(alphabet)
-    key = {}
-    for letter in alphabet:
-        replacement = letter
-        while replacement == letter:
-            replacement = random.choice(remaining)
-        key.update({letter: replacement})
-        remaining.remove(replacement)
+def validate_alphabet(key):
+    for i in range(len(letters)):
+        if key[i] == letters[i]:
+            return False
+    return True
 
-    # Encode quote
+
+def encode_quote(key):
     plaintext = random.choice(quote_list)
     ciphertext = ''
     for char in plaintext:
-        if char in alphabet:
+        if char in letters:
             ciphertext += key[char]
         else:
             ciphertext += char
     return ciphertext, plaintext
 
 
-def aristocrat():
-    ciphertext, plaintext = encode_random()
+def key_alphabet():
+    keyword = random.choice(keywords)
+    keyword_unique = ''.join(dict.fromkeys(keyword))
+
+    keyed_alphabet = letters
+    mask = str.maketrans('', '', keyword)
+    remaining = letters.translate(mask)
+    while not validate_alphabet(keyed_alphabet):
+        offset = random.randint(0, 25)
+        cutoff = len(letters) - offset
+        keyed_alphabet = keyword_unique[cutoff:] + remaining[-offset:] + keyword_unique[:cutoff] + remaining[:-offset]
+    return keyword, keyed_alphabet
+
+
+def encode_random():
+    # Generate key
+    replacement_alphabet = list(letters)
+    while not validate_alphabet(''.join(replacement_alphabet)):
+        random.shuffle(replacement_alphabet)
+    key = dict(zip(letters, replacement_alphabet))
+    return key
+
+
+def encode_k1():
+    # Generate key
+    keyword, replacement_alphabet = key_alphabet()
+    key = dict(zip(letters, replacement_alphabet))
+    return key
+
+
+def encode_k2():
+    # Generate key
+    keyword, replacement_alphabet = key_alphabet()
+    key = dict(zip(replacement_alphabet, letters))
+    print(key)
+    return key
+
+
+def generate_problem(alphabet):
+    if alphabet.lower() == 'k1':
+        key = encode_k1()
+    elif alphabet.lower() == 'k2':
+        key = encode_k2()
+    else:
+        key = encode_random()
+    return encode_quote(key)
+
+
+def aristocrat(alphabet):
+    ciphertext, plaintext = generate_problem(alphabet)
     return {
         'ciphertext': ciphertext,
         'plaintext': plaintext,
@@ -44,12 +88,14 @@ def aristocrat():
     }
 
 
-def patristocrat():
+def patristocrat(alphabet):
     chunk_size = 5
-    spaced_ciphertext, plaintext = encode_random()
-    replace = str.maketrans('', '', string.punctuation + ' ')
-    raw_chars = spaced_ciphertext.translate(replace)
-    ciphertext = ' '.join([raw_chars[i: i + chunk_size] for i in range(0, len(raw_chars), chunk_size)])
+    punctuated_ciphertext, punctuated_plaintext = generate_problem(alphabet)
+    mask = str.maketrans('', '', string.punctuation + ' ')
+    raw_ciphertext = punctuated_ciphertext.translate(mask)
+    raw_plaintext = punctuated_plaintext.translate(mask)
+    ciphertext = ' '.join([raw_ciphertext[i: i + chunk_size] for i in range(0, len(raw_ciphertext), chunk_size)])
+    plaintext = ' '.join([raw_plaintext[i: i + chunk_size] for i in range(0, len(raw_plaintext), chunk_size)])
     return {
         'ciphertext': ciphertext,
         'plaintext': plaintext,
@@ -57,8 +103,10 @@ def patristocrat():
     }
 
 
-alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
 with open('quotes.txt', 'r', encoding='utf-8') as quotes_file:
     quote_list = [line.strip().upper() for line in quotes_file.readlines()]
 
-print(patristocrat())
+with open('keywords.txt', 'r', encoding='utf-8') as keywords_file:
+    keywords = [line.strip().upper() for line in keywords_file.readlines()]
