@@ -1,9 +1,12 @@
 """
-Credit to Codebuilder bot (https://github.com/AC01010/codebuilder) for quotes and word list
+Credit to Codebuilder bot (https://github.com/AC01010/codebuilder) for quotes and keyword list
 """
 
 import random
 import string
+from flask import Flask, request
+
+app = Flask(__name__)
 
 
 def calculate_frequency(text):
@@ -79,18 +82,20 @@ def generate_problem(alphabet):
     return encode_quote(key)
 
 
-def aristocrat(alphabet):
-    ciphertext, plaintext = generate_problem(alphabet)
+@app.route('/aristocrat')
+def aristocrat():
+    ciphertext, plaintext = generate_problem(request.args.get('alphabet', ''))
     return {
         'ciphertext': ciphertext,
         'plaintext': plaintext,
         'frequency': calculate_frequency(ciphertext)
-    }
+    }, 200
 
 
-def patristocrat(alphabet):
+@app.route('/patristocrat')
+def patristocrat():
     chunk_size = 5
-    punctuated_ciphertext, punctuated_plaintext = generate_problem(alphabet)
+    punctuated_ciphertext, punctuated_plaintext = generate_problem(request.args.get('alphabet', ''))
     mask = str.maketrans('', '', string.punctuation + ' ')
     raw_ciphertext = punctuated_ciphertext.translate(mask)
     raw_plaintext = punctuated_plaintext.translate(mask)
@@ -100,7 +105,7 @@ def patristocrat(alphabet):
         'ciphertext': ciphertext,
         'plaintext': plaintext,
         'frequency': calculate_frequency(ciphertext)
-    }
+    }, 200
 
 
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -110,3 +115,6 @@ with open('quotes.txt', 'r', encoding='utf-8') as quotes_file:
 
 with open('keywords.txt', 'r', encoding='utf-8') as keywords_file:
     keywords = [line.strip().upper() for line in keywords_file.readlines()]
+
+if __name__ == '__main__':
+    app.run('localhost', port=8080)
