@@ -1,7 +1,4 @@
-"""
-Credit to Codebuilder bot (https://github.com/AC01010/codebuilder) for quotes and keyword list
-"""
-
+import os
 import random
 import string
 from flask import Flask, request
@@ -68,7 +65,6 @@ def encode_k2():
     # Generate key
     keyword, replacement_alphabet = key_alphabet()
     key = dict(zip(replacement_alphabet, letters))
-    print(key)
     return key
 
 
@@ -82,7 +78,7 @@ def generate_problem(alphabet):
     return encode_quote(key)
 
 
-@app.route('/aristocrat')
+@app.route('/aristocrat', methods=['GET'])
 def aristocrat():
     ciphertext, plaintext = generate_problem(request.args.get('alphabet', ''))
     return {
@@ -92,7 +88,7 @@ def aristocrat():
     }, 200
 
 
-@app.route('/patristocrat')
+@app.route('/patristocrat', methods=['GET'])
 def patristocrat():
     chunk_size = 5
     punctuated_ciphertext, punctuated_plaintext = generate_problem(request.args.get('alphabet', ''))
@@ -109,12 +105,13 @@ def patristocrat():
 
 
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+resource_dir = os.path.dirname(os.path.realpath(__file__))
 
-with open('quotes.txt', 'r', encoding='utf-8') as quotes_file:
+with open(os.path.join(resource_dir, 'quotes.txt'), 'r', encoding='utf-8') as quotes_file:
     quote_list = [line.strip().upper() for line in quotes_file.readlines()]
 
-with open('keywords.txt', 'r', encoding='utf-8') as keywords_file:
+with open(os.path.join(resource_dir, 'keywords.txt'), 'r', encoding='utf-8') as keywords_file:
     keywords = [line.strip().upper() for line in keywords_file.readlines()]
 
 if __name__ == '__main__':
-    app.run('localhost', port=8080)
+    app.run()
