@@ -75,6 +75,10 @@ Example response:
 * `plaintext` - The original quote from the problem
 * `frequency` - The number of occurrences of each letter in the ciphertext
 
+
+## Development
+To further develop this api, make sure to install `Flask~=2.2.3` from Pip
+
 ## Credits
 
 Credit to [Codebuilder](https://github.com/AC01010/codebuilder) for [quotes list](quotes.txt) and
