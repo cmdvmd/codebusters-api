@@ -41,7 +41,7 @@ Example response:
 
 
 ## Development
-To further develop this api, make sure to install `Flask~=2.2.3` from Pip
+To further develop this api, make sure to install `Flask~=2.2.3` and `flask_cors~=3.0.10` from Pip
 
 ## Credits
 
