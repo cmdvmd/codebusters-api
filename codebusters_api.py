@@ -6,13 +6,6 @@ from flask import Flask, request
 app = Flask(__name__)
 
 
-def calculate_frequency(text):
-    frequency = {}
-    for char in letters:
-        frequency.update({char: text.count(char)})
-    return frequency
-
-
 def validate_alphabet(key):
     for i in range(len(letters)):
         if key[i] == letters[i]:
@@ -83,8 +76,7 @@ def aristocrat():
     ciphertext, plaintext = generate_problem(request.args.get('alphabet', ''))
     return {
         'ciphertext': ciphertext,
-        'plaintext': plaintext,
-        'frequency': calculate_frequency(ciphertext)
+        'plaintext': plaintext
     }, 200
 
 
@@ -99,8 +91,7 @@ def patristocrat():
     plaintext = ' '.join([raw_plaintext[i: i + chunk_size] for i in range(0, len(raw_plaintext), chunk_size)])
     return {
         'ciphertext': ciphertext,
-        'plaintext': plaintext,
-        'frequency': calculate_frequency(ciphertext)
+        'plaintext': plaintext
     }, 200
 
 
