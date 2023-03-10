@@ -4,11 +4,12 @@ import string
 from flask import Flask, request
 
 app = Flask(__name__)
+letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 
-def validate_alphabet(key):
-    for i in range(len(letters)):
-        if key[i] == letters[i]:
+def validate_alphabet(ciphertext, plaintext=letters):
+    for i in range(len(ciphertext)):
+        if ciphertext[i] == plaintext[i]:
             return False
     return True
 
@@ -24,17 +25,18 @@ def encode_quote(key):
     return ciphertext, plaintext
 
 
-def key_alphabet():
-    keyword = random.choice(keywords)
+def key_alphabet(keyword=None):
+    keyword = keyword if keyword is not None else random.choice(keywords)
     keyword_unique = ''.join(dict.fromkeys(keyword))
 
-    keyed_alphabet = letters
     mask = str.maketrans('', '', keyword)
     remaining = letters.translate(mask)
-    while not validate_alphabet(keyed_alphabet):
+    while True:
         offset = random.randint(0, 25)
         cutoff = len(letters) - offset
         keyed_alphabet = keyword_unique[cutoff:] + remaining[-offset:] + keyword_unique[:cutoff] + remaining[:-offset]
+        if validate_alphabet(keyed_alphabet):
+            break
     return keyword, keyed_alphabet
 
 
@@ -48,16 +50,24 @@ def encode_random():
 
 
 def encode_k1():
-    # Generate key
     keyword, replacement_alphabet = key_alphabet()
     key = dict(zip(letters, replacement_alphabet))
     return key
 
 
 def encode_k2():
-    # Generate key
     keyword, replacement_alphabet = key_alphabet()
     key = dict(zip(replacement_alphabet, letters))
+    return key
+
+
+def encode_k3():
+    keyword, plaintext_alphabet = key_alphabet()
+    while True:
+        keyword,  replacement_alphabet = key_alphabet(keyword)
+        key = dict(zip(plaintext_alphabet, replacement_alphabet))
+        if validate_alphabet(replacement_alphabet, plaintext_alphabet):
+            break
     return key
 
 
@@ -66,6 +76,8 @@ def generate_problem(alphabet):
         key = encode_k1()
     elif alphabet.lower() == 'k2':
         key = encode_k2()
+    elif alphabet.lower() == 'k3':
+        key = encode_k3()
     else:
         key = encode_random()
     return encode_quote(key)
@@ -95,12 +107,9 @@ def patristocrat():
     }, 200
 
 
-letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 resource_dir = os.path.dirname(os.path.realpath(__file__))
-
 with open(os.path.join(resource_dir, 'quotes.txt'), 'r', encoding='utf-8') as quotes_file:
     quote_list = [line.strip().upper() for line in quotes_file.readlines()]
-
 with open(os.path.join(resource_dir, 'keywords.txt'), 'r', encoding='utf-8') as keywords_file:
     keywords = [line.strip().upper() for line in keywords_file.readlines()]
 
