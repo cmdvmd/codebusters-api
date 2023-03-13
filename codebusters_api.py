@@ -47,19 +47,19 @@ def encode_random():
     replacement_alphabet = list(letters)
     while not validate_alphabet(''.join(replacement_alphabet)):
         random.shuffle(replacement_alphabet)
-    key = dict(zip(letters, replacement_alphabet))
+    key = dict(zip(replacement_alphabet, letters))
     return key
 
 
 def encode_k1():
     keyword, replacement_alphabet = key_alphabet()
-    key = dict(zip(letters, replacement_alphabet))
+    key = dict(zip(replacement_alphabet, letters))
     return key
 
 
 def encode_k2():
     keyword, replacement_alphabet = key_alphabet()
-    key = dict(zip(replacement_alphabet, letters))
+    key = dict(zip(letters, replacement_alphabet))
     return key
 
 
@@ -67,7 +67,7 @@ def encode_k3():
     keyword, plaintext_alphabet = key_alphabet()
     while True:
         keyword,  replacement_alphabet = key_alphabet(keyword)
-        key = dict(zip(plaintext_alphabet, replacement_alphabet))
+        key = dict(zip(replacement_alphabet, plaintext_alphabet))
         if validate_alphabet(replacement_alphabet, plaintext_alphabet):
             break
     return key
