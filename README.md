@@ -16,7 +16,7 @@ https://codebustersapi.pythonanywhere.com/patristocrat
 ```
 
 ## URL Parameters
-`alphabet` - Random, K1, K2, K3 (defaults to Random) (not applicable for Xenocrypt)
+`alphabet` - Random, K1, K2, K3 (defaults to Random)
 
 Example calls:
 ```
@@ -24,6 +24,9 @@ https://codebustersapi.pythonanywhere.com/aristocrat?alphabet=K1
 ```
 ```
 https://codebustersapi.pythonanywhere.com/patristocrat?alphabet=K2
+```
+```
+https://codebustersapi.pythonanywhere.com/xenocrypt?alphabet=K3
 ```
 
 ## Response

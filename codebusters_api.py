@@ -20,8 +20,17 @@ def validate_alphabet(ciphertext, plaintext=letters):
     return True
 
 
-def encode_quote(key, quote=None):
-    plaintext = quote if quote is not None else random.choice(quote_list)
+def encode_quote(key, spanish=False):
+    plaintext = random.choice(quote_list)
+    if spanish:
+        spanish_ignore = spanish_n + '\u00a1\u00bf'
+        translated = translator.translate(plaintext, src='en', dest='es').text
+        normalized = list(unidecode(translated))
+        for index, char in enumerate(translated):
+            if char in spanish_ignore:
+                normalized[index] = char
+        plaintext = ''.join(normalized)
+
     ciphertext = ''
     for char in plaintext:
         if char in letters or (spanish_n in key and char in spanish_letters):
@@ -31,61 +40,61 @@ def encode_quote(key, quote=None):
     return ciphertext, plaintext
 
 
-def key_alphabet(keyword=None):
-    keyword = keyword if keyword is not None else random.choice(keywords)
+def key_alphabet(keyword=None, alphabet=letters):
+    keyword = keyword if keyword is not None else random.choice(keyword_list)
     keyword_unique = ''.join(dict.fromkeys(keyword))
 
     mask = str.maketrans('', '', keyword)
-    remaining = letters.translate(mask)
+    remaining = alphabet.translate(mask)
     while True:
         offset = random.randint(0, 25)
-        cutoff = len(letters) - offset
+        cutoff = len(alphabet) - offset
         keyed_alphabet = keyword_unique[cutoff:] + remaining[-offset:] + keyword_unique[:cutoff] + remaining[:-offset]
-        if validate_alphabet(keyed_alphabet):
+        if validate_alphabet(keyed_alphabet, alphabet):
             break
     return keyword, keyed_alphabet
 
 
-def encode_random():
-    ciphertext_alphabet = list(letters)
-    while not validate_alphabet(''.join(ciphertext_alphabet)):
+def encode_random(alphabet):
+    ciphertext_alphabet = list(alphabet)
+    while not validate_alphabet(''.join(ciphertext_alphabet), alphabet):
         random.shuffle(ciphertext_alphabet)
-    key = dict(zip(ciphertext_alphabet, letters))
+    key = dict(zip(ciphertext_alphabet, alphabet))
     return key
 
 
-def encode_k1():
-    keyword, ciphertext_alphabet = key_alphabet()
-    key = dict(zip(ciphertext_alphabet, letters))
+def encode_k1(alphabet):
+    keyword, ciphertext_alphabet = key_alphabet(alphabet=alphabet)
+    key = dict(zip(ciphertext_alphabet, alphabet))
     return key
 
 
-def encode_k2():
-    keyword, ciphertext_alphabet = key_alphabet()
-    key = dict(zip(letters, ciphertext_alphabet))
+def encode_k2(alphabet):
+    keyword, ciphertext_alphabet = key_alphabet(alphabet=alphabet)
+    key = dict(zip(alphabet, ciphertext_alphabet))
     return key
 
 
-def encode_k3():
-    keyword, plaintext_alphabet = key_alphabet()
+def encode_k3(alphabet):
+    keyword, plaintext_alphabet = key_alphabet(alphabet=alphabet)
     while True:
-        keyword,  ciphertext_alphabet = key_alphabet(keyword)
+        keyword,  ciphertext_alphabet = key_alphabet(keyword=keyword, alphabet=alphabet)
         key = dict(zip(ciphertext_alphabet, plaintext_alphabet))
         if validate_alphabet(ciphertext_alphabet, plaintext_alphabet):
             break
     return key
 
 
-def generate_problem(alphabet):
+def generate_problem(alphabet, spanish=False):
     if alphabet.lower() == 'k1':
-        key = encode_k1()
+        key = encode_k1(alphabet=spanish_letters if spanish else letters)
     elif alphabet.lower() == 'k2':
-        key = encode_k2()
+        key = encode_k2(alphabet=spanish_letters if spanish else letters)
     elif alphabet.lower() == 'k3':
-        key = encode_k3()
+        key = encode_k3(alphabet=spanish_letters if spanish else letters)
     else:
-        key = encode_random()
-    return encode_quote(key)
+        key = encode_random(alphabet=spanish_letters if spanish else letters)
+    return encode_quote(key, spanish)
 
 
 @app.route('/aristocrat', methods=['GET'])
@@ -114,21 +123,7 @@ def patristocrat():
 
 @app.route('/xenocrypt', methods=['GET'])
 def xenocrypt():
-    quote = random.choice(quote_list)
-    spanish = translator.translate(quote, src='en', dest='es').text
-    normalized = list(unidecode(spanish))
-    for index, char in enumerate(spanish):
-        if char == spanish_n:
-            normalized[index] = spanish_n
-    normalized = ''.join(normalized)
-
-    ciphertext_alphabet = list(spanish_letters)
-    while not validate_alphabet(''.join(ciphertext_alphabet), spanish_letters):
-        random.shuffle(ciphertext_alphabet)
-    key = dict(zip(ciphertext_alphabet, spanish_letters))
-    print(key)
-
-    ciphertext, plaintext = encode_quote(key, normalized)
+    ciphertext, plaintext = generate_problem(request.args.get('alphabet', ''), True)
     return {
         'ciphertext': ciphertext,
         'plaintext': plaintext
@@ -140,7 +135,7 @@ resource_dir = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(resource_dir, 'quotes.txt'), 'r', encoding='utf-8') as quotes_file:
     quote_list = [line.strip().upper() for line in quotes_file.readlines()]
 with open(os.path.join(resource_dir, 'keywords.txt'), 'r', encoding='utf-8') as keywords_file:
-    keywords = [line.strip().upper() for line in keywords_file.readlines()]
+    keyword_list = [line.strip().upper() for line in keywords_file.readlines()]
 
 if __name__ == '__main__':
     app.run()
