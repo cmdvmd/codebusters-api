@@ -5,6 +5,7 @@ encoding. Access the API [here](https://codebustersapi.pythonanywhere.com) (requ
 ## Endpoints
 * `aristocrat`
 * `patristocrat`
+* `xenocrypt`
 
 Example Calls:
 ```
@@ -15,7 +16,7 @@ https://codebustersapi.pythonanywhere.com/patristocrat
 ```
 
 ## URL Parameters
-`alphabet` - Random, K1, K2, K3 (defaults to Random)
+`alphabet` - Random, K1, K2, K3 (defaults to Random) (not applicable for Xenocrypt)
 
 Example calls:
 ```
@@ -38,10 +39,6 @@ Example response:
 
 * `ciphertext` - The encrypted text of the problem
 * `plaintext` - The original quote from the problem
-
-
-## Development
-To further develop this api, make sure to install `Flask~=2.2.3` and `flask_cors~=3.0.10` from Pip
 
 ## Credits
 

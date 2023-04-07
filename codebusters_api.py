@@ -3,10 +3,14 @@ import random
 import string
 from flask import Flask, request
 from flask_cors import CORS
+from googletrans import Translator
+from unidecode import unidecode
 
 app = Flask(__name__)
 CORS(app)
 letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+spanish_n = '\u00d1'
+spanish_letters = f'ABCDEFGHIJKLMN{spanish_n}OPQRSTUVWXYZ'
 
 
 def validate_alphabet(ciphertext, plaintext=letters):
@@ -16,8 +20,8 @@ def validate_alphabet(ciphertext, plaintext=letters):
     return True
 
 
-def encode_quote(key):
-    plaintext = random.choice(quote_list)
+def encode_quote(key, quote=None):
+    plaintext = quote if quote is not None else random.choice(quote_list)
     ciphertext = ''
     for char in plaintext:
         if char in letters:
@@ -108,6 +112,29 @@ def patristocrat():
     }, 200
 
 
+@app.route('/xenocrypt', methods=['GET'])
+def xenocrypt():
+    quote = random.choice(quote_list)
+    spanish = translator.translate(quote, src='en', dest='es').text
+    normalized = list(unidecode(spanish))
+    for index, char in enumerate(spanish):
+        if char == spanish_n:
+            normalized[index] = spanish_n
+    normalized = ''.join(normalized)
+
+    ciphertext_alphabet = list(spanish_letters)
+    while not validate_alphabet(''.join(ciphertext_alphabet), spanish_letters):
+        random.shuffle(ciphertext_alphabet)
+    key = dict(zip(ciphertext_alphabet, spanish_letters))
+
+    ciphertext, plaintext = encode_quote(key, normalized)
+    return {
+        'ciphertext': ciphertext,
+        'plaintext': plaintext
+    }, 200
+
+
+translator = Translator()
 resource_dir = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(resource_dir, 'quotes.txt'), 'r', encoding='utf-8') as quotes_file:
     quote_list = [line.strip().upper() for line in quotes_file.readlines()]
