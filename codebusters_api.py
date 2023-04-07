@@ -24,7 +24,7 @@ def encode_quote(key, quote=None):
     plaintext = quote if quote is not None else random.choice(quote_list)
     ciphertext = ''
     for char in plaintext:
-        if char in letters:
+        if char in letters or (spanish_n in key and char in spanish_letters):
             ciphertext += key[char]
         else:
             ciphertext += char
@@ -126,6 +126,7 @@ def xenocrypt():
     while not validate_alphabet(''.join(ciphertext_alphabet), spanish_letters):
         random.shuffle(ciphertext_alphabet)
     key = dict(zip(ciphertext_alphabet, spanish_letters))
+    print(key)
 
     ciphertext, plaintext = encode_quote(key, normalized)
     return {
