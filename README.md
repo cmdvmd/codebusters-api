@@ -17,6 +17,7 @@ https://codebustersapi.pythonanywhere.com/patristocrat
 
 ## URL Parameters
 `alphabet` - Random, K1, K2, K3 (defaults to Random)
+> **_Note:_**  Keywords for xenocrypts will always be in English
 
 Example calls:
 ```
