@@ -3,7 +3,8 @@
 An API to generate Aristocrats and Patristocrats for Codebusters with K1, K2, and random substitution
 encoding.
 
-Current API hosted at: [codebustersapi.pythonanywhere.com](https://codebustersapi.pythonanywhere.com)
+> **Note:** This API is hosted for free on [PythonAnywhere](https://www.pythonanywhere.com). If it no longer works, it
+> may have been disabled. If this is the case, please [contact me](mailto:vcmd43@gmail.com) and I will renew the website
 
 ## Endpoints
 
@@ -30,7 +31,7 @@ https://codebustersapi.pythonanywhere.com/xenocrypt
 Use the `alphabet` parameter with the value Random, K1, K2, or K3 (defaults to Random) to generate a problem that has
 been encoded with the chosen alphabet
 
-> **_Note:_**  Keywords for xenocrypts will always be in English
+> **Note:**  Keywords for xenocrypts will always be in English
 
 *Example calls:*
 
